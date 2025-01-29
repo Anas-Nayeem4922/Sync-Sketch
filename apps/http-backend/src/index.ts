@@ -4,9 +4,9 @@ const port = 3001;
 import bcrypt from "bcryptjs";
 require('dotenv').config();
 import jwt from "jsonwebtoken"
-const JWT_SECRET = process.env.JWT_SECRET || "";
+const JWT_SECRET = process.env.JWT_SECRET as string;
 
-import { SigninSchema, SignupSchema } from "@repo/common/type"
+import { RoomSchema, SigninSchema, SignupSchema } from "@repo/common/type"
 import { client } from "@repo/db/db"
 import { auth } from "./middleware";
 import { CustomRequest } from "./types/custom-request";
@@ -73,7 +73,23 @@ app.post("/signin", async(req: Request, res: Response) => {
 });
 
 app.post("/room", auth, async(req: CustomRequest, res: Response) => {
-    
+    const data = RoomSchema.safeParse(req.body);
+    const userId = req.userId as string;
+    if(data.success) {
+        const room = await client.room.create({
+            data: {
+                slug: data.data.slug,
+                adminId: userId
+            }
+        });
+        res.json({
+            id: room.id
+        })
+    }else{
+        res.status(403).json({
+            msg: "Invalid inputs"
+        })
+    }
 })
 
 app.listen(port, () => {

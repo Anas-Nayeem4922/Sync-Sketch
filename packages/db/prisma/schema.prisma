@@ -12,4 +12,25 @@ model User {
   email     String       @unique
   username  String 
   password  String
+  rooms     Room[]
+  shapes    Shape[]
+}
+
+model Room {
+  id         Int        @id @default(autoincrement())
+  slug       String     
+  createdAt  DateTime   @default(now())
+  adminId    String
+  admin      User       @relation(fields: [adminId], references: [id])
+  shapes     Shape[]
+}
+
+model Shape {
+  id         Int        @id @default(autoincrement())
+  roomId     Int        
+  type       String
+  data       Json
+  userId     String
+  room       Room     @relation(fields: [roomId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
 }
