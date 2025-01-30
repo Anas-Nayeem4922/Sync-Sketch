@@ -11,7 +11,10 @@ import { client } from "@repo/db/db"
 import { auth } from "./middleware";
 import { CustomRequest } from "./types/custom-request";
 
+import cors from "cors";
+
 app.use(express.json());
+app.use(cors());
 
 app.post("/signup", async(req: Request, res: Response) => {
     const data = SignupSchema.safeParse(req.body);
@@ -28,7 +31,7 @@ app.post("/signup", async(req: Request, res: Response) => {
             id: user.id
         }, JWT_SECRET);
         res.json({
-            userId: user.id,
+            username: user.username,
             token
         })
     }else{

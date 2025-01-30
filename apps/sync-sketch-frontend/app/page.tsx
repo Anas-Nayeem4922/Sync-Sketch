@@ -16,10 +16,18 @@ import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState<string | null>();
   const router = useRouter();
   useEffect(() => {
     setIsLoggedIn(checkUser())
   }, []);
+
+    useEffect(() => {
+      setUsername(localStorage.getItem("username"));
+    }, [isLoggedIn])
+
+    console.log(username);
+
   return (
     <div className="min-h-screen bg-background">
       {/* User Menu */}
@@ -29,7 +37,7 @@ export default function Home() {
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
               <Avatar>
                 <AvatarFallback className="bg-primary/10">
-                  <User />
+                  {!isLoggedIn ? <User /> : <div className="font-bold">{username}</div>}
                 </AvatarFallback>
               </Avatar>
             </Button>

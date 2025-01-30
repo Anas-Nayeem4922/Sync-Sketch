@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SignupSchema, type SignupValues } from "@repo/common/type";
@@ -16,6 +16,9 @@ import {
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { UserPlus } from "lucide-react";
+import axios from "axios"
+import { HTTP_BACKEND } from "@/lib/url";
+import { redirect } from "next/navigation";
 
 export default function SignUp() {
   const [isLoading, setIsLoading] = useState(false);
@@ -31,9 +34,21 @@ export default function SignUp() {
 
   async function onSubmit(values: SignupValues) {
     setIsLoading(true);
-    // Handle sign up logic here
-    console.log(values);
-    setIsLoading(false);
+    const {email, username, password} = values;
+    const response = await axios.post(`${HTTP_BACKEND}/signup`, {
+      email,
+      password,
+      username
+    });
+    const data = await response.data
+    if(data && data.token) {
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("username", data.username.toUpperCase()[0])
+      setIsLoading(false);
+      redirect("/");
+    }else{
+      console.error("Something went wrong");
+    }
   }
 
   return (
