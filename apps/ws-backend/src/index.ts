@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken"
 require('dotenv').config();
 import { client } from "@repo/db/db"
 const JWT_SECRET = process.env.JWT_SECRET as string;
-console.log(JWT_SECRET);
 const wss = new WebSocketServer({port}, () => {
     console.log(`Web Socket Server running on port ${port}`)
 });
@@ -23,10 +22,10 @@ function checkUser(token: string) : string | null {
         if(typeof decoded === "string") {
             return null;
         }
-        if(!decoded || !decoded.userId) {
+        if(!decoded || !decoded.id) {
             return null;
         } 
-        return decoded.userId;
+        return decoded.id;
     }catch(e) {
         return null
     }
@@ -63,7 +62,25 @@ wss.on("connection", (ws: WebSocket, request) => {
             user.rooms = user.rooms.filter(x => x === parsedData.room);
         }
         if(parsedData.type === "chat") {
-            
+            const {roomId, shapeType, shapeData} = parsedData
+            const shape = await client.shape.create({
+                data: {
+                    roomId,
+                    shapeType,
+                    shapeData,
+                    userId
+                }
+            })
+            users.forEach(user => {
+                if(user.rooms.includes(parsedData.roomId)) {
+                    user.ws.send(JSON.stringify({
+                        type: "chat",
+                        shapeType,
+                        shapeData,
+                        roomId
+                    }))
+                }
+            })
         }
     })
 })
