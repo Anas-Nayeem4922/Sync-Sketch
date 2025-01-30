@@ -13,5 +13,8 @@ export const SigninSchema = z.object({
 
 export const RoomSchema = z.object({
     slug: z.string().max(30)
-})
+});
+
+export type SignupValues = z.infer<typeof SignupSchema>;
+export type SigninValues = z.infer<typeof SigninSchema>;
 

@@ -2,31 +2,84 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, Users, Shapes, Share2, Palette, Sparkles } from "lucide-react";
+import { ArrowRight, Users, Shapes, Share2, Palette, Sparkles, LogIn, LogOut, User } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { checkUser } from "@/lib/checkUser";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+  useEffect(() => {
+    setIsLoggedIn(checkUser())
+  }, []);
   return (
     <div className="min-h-screen bg-background">
+      {/* User Menu */}
+      <div className="absolute top-4 right-4 z-50">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+              <Avatar>
+                <AvatarFallback className="bg-primary/10">
+                  <User />
+                </AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" align="end" forceMount>
+            {isLoggedIn ? (
+              <DropdownMenuItem className="cursor-pointer text-destructive">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log Out</span>
+              </DropdownMenuItem>
+            ) : (
+              <>
+                <DropdownMenuItem 
+                  className="cursor-pointer"
+                  onClick={() => router.push("/signin")}
+                >
+                  <LogIn className="mr-2 h-4 w-4" />
+                  <span>Sign In</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="cursor-pointer"
+                  onClick={() => router.push("/signup")}
+                >
+                  <LogIn className="mr-2 h-4 w-4" />
+                  <span>Sign Up</span>
+                </DropdownMenuItem>
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5" />
         <div className="relative px-6 lg:px-8">
-          <div className="mx-auto max-w-7xl py-24 sm:py-32">
-            <div className="text-center">
-              <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-6xl">
-                Collaborate and Create Together
-              </h1>
-              <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto">
-                A powerful whiteboarding platform that brings teams together. Create, share, and collaborate on diagrams, sketches, and designs in real-time.
-              </p>
-              <div className="mt-10 flex items-center justify-center gap-x-6">
-                <Button size="lg" className="gap-2">
-                  Start Drawing <ArrowRight className="h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="lg">
-                  Watch Demo
-                </Button>
-              </div>
+          <div className="mx-auto max-w-7xl py-24 sm:py-32 text-center">
+            <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-6xl">
+              Collaborate and Create Together
+            </h1>
+            <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto">
+              A powerful whiteboarding platform that brings teams together. Create, share, and collaborate on diagrams, sketches, and designs in real-time.
+            </p>
+            <div className="mt-10 flex items-center justify-center gap-x-6">
+              <Button size="lg" className="gap-2">
+                Start Drawing <ArrowRight className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="lg">
+                Watch Demo
+              </Button>
             </div>
           </div>
         </div>

@@ -1,0 +1,1 @@
+export const checkUser = () => !!localStorage.getItem("token");
