@@ -17,4 +17,5 @@ export const RoomSchema = z.object({
 
 export type SignupValues = z.infer<typeof SignupSchema>;
 export type SigninValues = z.infer<typeof SigninSchema>;
+export type RoomValues = z.infer<typeof RoomSchema>;
 

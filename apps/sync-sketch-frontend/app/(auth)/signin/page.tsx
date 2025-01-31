@@ -53,13 +53,9 @@ export default function SignIn() {
       }
       
     } catch(e: any) {
-      if(e.response) {
         setError(true);
         setErrorMessage(e.response.data.msg);
         setIsLoading(false);
-      }else{
-        console.error("Something went wrong");
-      }
     }
   }
 

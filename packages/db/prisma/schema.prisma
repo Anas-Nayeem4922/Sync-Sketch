@@ -17,7 +17,7 @@ model User {
 }
 
 model Room {
-  id         Int        @id @default(autoincrement())
+  id         String        @id @default(uuid())
   slug       String     
   createdAt  DateTime   @default(now())
   adminId    String
@@ -27,9 +27,9 @@ model Room {
 
 model Shape {
   id         Int        @id @default(autoincrement())
-  roomId     Int        
-  shapeType       String
-  shapeData       Json
+  roomId     String        
+  shapeType  String
+  shapeData  Json
   userId     String
   room       Room     @relation(fields: [roomId], references: [id])
   user       User     @relation(fields: [userId], references: [id])
