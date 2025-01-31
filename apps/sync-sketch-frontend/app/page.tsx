@@ -85,7 +85,13 @@ export default function Home() {
               A powerful whiteboarding platform that brings teams together. Create, share, and collaborate on diagrams, sketches, and designs in real-time.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
-              <Button size="lg" className="gap-2">
+              <Button onClick={() => {
+                if(isLoggedIn) {
+                  router.push("/room");
+                }else{
+                  router.push("/signup");
+                }
+              }} size="lg" className="gap-2">
                 Start Drawing <ArrowRight className="h-4 w-4" />
               </Button>
               <Button variant="outline" size="lg">
