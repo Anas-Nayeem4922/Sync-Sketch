@@ -56,6 +56,7 @@ app.post("/signin", async(req: Request, res: Response) => {
                     id: user.id
                 }, JWT_SECRET)
                 res.json({
+                    username: user.username,
                     token
                 })
             }else{

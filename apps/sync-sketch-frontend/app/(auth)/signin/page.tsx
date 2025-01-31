@@ -16,9 +16,15 @@ import {
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { LogIn } from "lucide-react";
+import axios from "axios"
+import { HTTP_BACKEND } from "@/lib/url";
+import { useRouter } from "next/navigation";
 
 export default function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const router = useRouter();
 
   const form = useForm<SigninValues>({
     resolver: zodResolver(SigninSchema),
@@ -30,9 +36,31 @@ export default function SignIn() {
 
   async function onSubmit(values: SigninValues) {
     setIsLoading(true);
-    // Handle sign in logic here
-    console.log(values);
-    setIsLoading(false);
+    const {email, password} = values
+    try {
+      const response = await axios.post(`${HTTP_BACKEND}/signin`, {
+        email,
+        password
+      })
+      const data = await response.data;
+      if(data && data.token) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("username", data.username.toUpperCase()[0])
+        setIsLoading(false);
+        router.push("/");
+      }else{
+        console.error("Something went wrong")
+      }
+      
+    } catch(e: any) {
+      if(e.response) {
+        setError(true);
+        setErrorMessage(e.response.data.msg);
+        setIsLoading(false);
+      }else{
+        console.error("Something went wrong");
+      }
+    }
   }
 
   return (
@@ -55,9 +83,12 @@ export default function SignIn() {
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
           <div className="flex flex-col space-y-2 text-center">
             <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
-            <p className="text-sm text-muted-foreground">
-              Enter your credentials to sign in to your account
-            </p>
+            {error ? <p className="text-sm text-muted-foreground text-red-600">{errorMessage}</p> : 
+              <p className="text-sm text-muted-foreground">
+                Enter your credentials to sign in to your account
+              </p>
+            }
+            
           </div>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

@@ -26,7 +26,6 @@ export default function Home() {
       setUsername(localStorage.getItem("username"));
     }, [isLoggedIn])
 
-    console.log(username);
 
   return (
     <div className="min-h-screen bg-background">
@@ -44,7 +43,11 @@ export default function Home() {
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end" forceMount>
             {isLoggedIn ? (
-              <DropdownMenuItem className="cursor-pointer text-destructive">
+              <DropdownMenuItem onClick={() => {
+                localStorage.removeItem("token");
+                localStorage.removeItem("username")
+                setIsLoggedIn(false);
+              }} className="cursor-pointer text-destructive">
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log Out</span>
               </DropdownMenuItem>
