@@ -14,7 +14,6 @@ export default function RoomCanvas({ roomId }: { roomId: string }) {
 
     useEffect(() => {
         if (!token) return;
-
         const ws = new WebSocket(`${WS_BACKEND}?token=${token}`);
         ws.onopen = () => {
             setSocket(ws);
@@ -23,7 +22,6 @@ export default function RoomCanvas({ roomId }: { roomId: string }) {
                 roomId,
             }));
         };
-
     }, [token]);
 
     if (!socket) {
