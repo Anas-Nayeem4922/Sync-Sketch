@@ -94,7 +94,23 @@ app.post("/room", auth, async(req: CustomRequest, res: Response) => {
             msg: "Invalid inputs"
         })
     }
-})
+});
+
+app.get("/shapes/:roomId", async(req: Request, res: Response) => {
+    const {roomId} = req.params;
+    const shapes = await client.shape.findMany({
+        where: {
+            roomId
+        },
+        orderBy: {
+            id: "desc"
+        },
+        take: 50
+    });
+    res.json({
+        shapes
+    })
+});
 
 app.listen(port, () => {
     console.log(`App is listening on port ${port}`);
