@@ -28,32 +28,13 @@ export async function initDraw(canvas: HTMLCanvasElement, roomId: string, socket
     let startY = 0;
     let clicked = false;
 
-    canvas.addEventListener("mousedown", (e: MouseEvent) => {
+    const mouseDownHandler = (e: MouseEvent) => {
         startX = e.offsetX;
         startY = e.offsetY;
         clicked = true;
-    });
+    }
 
-    canvas.addEventListener("mousemove", (e: MouseEvent) => {
-        if (clicked) {
-            clearCanvas(existingShapes, ctx);
-            if (selectedTool === "rectangle") {
-                ctx.strokeRect(startX, startY, e.offsetX - startX, e.offsetY - startY);
-            } else if (selectedTool === "circle") {
-                const radius = Math.sqrt(Math.pow(e.offsetX - startX, 2) + Math.pow(e.offsetY - startY, 2));
-                ctx.beginPath();
-                ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
-                ctx.stroke();
-            } else if (selectedTool === "line") {
-                ctx.beginPath();
-                ctx.moveTo(startX, startY);
-                ctx.lineTo(e.offsetX, e.offsetY);
-                ctx.stroke();
-            }
-        }
-    });
-
-    canvas.addEventListener("mouseup", (e: MouseEvent) => {
+    const mouseUpHandler = (e: MouseEvent) => {
         clicked = false;
         let shapeData: any;
         let shapeType: Shapes["type"] = selectedTool;
@@ -76,7 +57,37 @@ export async function initDraw(canvas: HTMLCanvasElement, roomId: string, socket
             })
         );
         clearCanvas(existingShapes, ctx);
-    });
+    }
+
+    const mouseMoveHandler = (e: MouseEvent) => {
+        if (clicked) {
+            clearCanvas(existingShapes, ctx);
+            if (selectedTool === "rectangle") {
+                ctx.strokeRect(startX, startY, e.offsetX - startX, e.offsetY - startY);
+            } else if (selectedTool === "circle") {
+                const radius = Math.sqrt(Math.pow(e.offsetX - startX, 2) + Math.pow(e.offsetY - startY, 2));
+                ctx.beginPath();
+                ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+                ctx.stroke();
+            } else if (selectedTool === "line") {
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(e.offsetX, e.offsetY);
+                ctx.stroke();
+            }
+        }
+    }
+
+    canvas.addEventListener("mousedown", mouseDownHandler);
+    canvas.addEventListener("mousemove", mouseMoveHandler);
+    canvas.addEventListener("mouseup", mouseUpHandler);
+
+    const cleanup = () => {
+        canvas.removeEventListener("mousedown", mouseDownHandler);
+        canvas.removeEventListener("mousemove", mouseMoveHandler);
+        canvas.removeEventListener("mouseup", mouseUpHandler);
+    }
+    return cleanup;
 }
 
 function clearCanvas(existingShapes: Shapes[], ctx: CanvasRenderingContext2D | null) {

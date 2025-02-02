@@ -13,10 +13,15 @@ export default function Canvas({roomId, socket} : {roomId : string, socket: WebS
     const [copied, setCopied] = useState(false);
     const [selectedTool, setSelectedTool] = useState<Tool>("rectangle");
 
-    useEffect(() => {
+    async function draw() {
         if(canvasRef.current) {
-            initDraw(canvasRef.current, roomId, socket, selectedTool)
+            const cleanup = await initDraw(canvasRef.current, roomId, socket, selectedTool);
+            return () => cleanup
         }
+    }
+
+    useEffect(() => {
+        draw();
     }, [canvasRef, selectedTool])
 
     const copyRoomId = async () => {
