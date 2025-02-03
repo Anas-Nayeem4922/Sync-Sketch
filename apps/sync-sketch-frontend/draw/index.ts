@@ -14,6 +14,7 @@ export async function initDraw(canvas: HTMLCanvasElement, roomId: string, socket
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    ctx.font = "30px Arial"
     clearCanvas(existingShapes, ctx);
 
     socket.onmessage = (event) => {
@@ -32,7 +33,7 @@ export async function initDraw(canvas: HTMLCanvasElement, roomId: string, socket
     let clicked = false;
 
     const mouseDownHandler = (e: MouseEvent) => {
-        if (window.selectedTool === "select") return; // Do nothing if "select" is active
+        if (window.selectedTool === "select") return; 
         startX = e.offsetX;
         startY = e.offsetY;
         clicked = true;
@@ -52,6 +53,9 @@ export async function initDraw(canvas: HTMLCanvasElement, roomId: string, socket
             shapeData = { startX, startY, endX: e.offsetX, endY: e.offsetY };
         } else if (shapeType === "arrow") {
             shapeData = { startX, startY, endX: e.offsetX, endY: e.offsetY };
+        } else if (shapeType === "text") {
+            const text = prompt("Enter your text");
+            shapeData = { text, startX, startY }
         }
 
         existingShapes.push({ type: shapeType, data: shapeData });
@@ -93,18 +97,18 @@ export async function initDraw(canvas: HTMLCanvasElement, roomId: string, socket
             ctx.beginPath();
             ctx.moveTo(endX, endY);
             ctx.lineTo(
-            endX - Math.cos(angle - Math.PI / 6) * arrowHeadSize,
-            endY - Math.sin(angle - Math.PI / 6) * arrowHeadSize
+                endX - Math.cos(angle - Math.PI / 6) * arrowHeadSize,
+                endY - Math.sin(angle - Math.PI / 6) * arrowHeadSize
             );
             ctx.stroke();
             ctx.beginPath();
             ctx.moveTo(endX, endY);
             ctx.lineTo(
-            endX - Math.cos(angle + Math.PI / 6) * arrowHeadSize,
-            endY - Math.sin(angle + Math.PI / 6) * arrowHeadSize
+                endX - Math.cos(angle + Math.PI / 6) * arrowHeadSize,
+                endY - Math.sin(angle + Math.PI / 6) * arrowHeadSize
             );
             ctx.stroke();
-        }
+        } 
     };
 
     canvas.addEventListener("mousedown", mouseDownHandler);
@@ -152,6 +156,9 @@ function clearCanvas(existingShapes: Shapes[], ctx: CanvasRenderingContext2D | n
             endY - Math.sin(angle + Math.PI / 6) * arrowHeadSize
             );
             ctx.stroke();
+        } else if (shape.type === "text") {
+            const { text, startX, startY } = shape.data
+            ctx.fillText(text, startX, startY);
         }
     });
 }
