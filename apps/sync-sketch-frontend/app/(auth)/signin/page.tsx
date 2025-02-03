@@ -52,11 +52,11 @@ export default function SignIn() {
         console.error("Something went wrong")
       }
       
-    } catch(e: any) {
-        setError(true);
-        setErrorMessage(e.response.data.msg);
-        setIsLoading(false);
-    }
+    } catch (e: unknown) {
+      setError(true);
+      setErrorMessage(e instanceof Error ? e.message : String(e));
+      setIsLoading(false);
+    }    
   }
 
   return (

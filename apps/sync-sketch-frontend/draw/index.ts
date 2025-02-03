@@ -39,7 +39,7 @@ export async function initDraw(canvas: HTMLCanvasElement, roomId: string, socket
     };
 
     const mouseUpHandler = (e: MouseEvent) => {
-        if (window.selectedTool === "select") return; // Do nothing if "select" is active
+        if (window.selectedTool === "select") return; 
         clicked = false;
         let shapeData: any;
         let shapeType: Shapes["type"] = window.selectedTool;
@@ -49,6 +49,8 @@ export async function initDraw(canvas: HTMLCanvasElement, roomId: string, socket
         } else if (shapeType === "circle") {
             shapeData = { startX, startY, radius: Math.sqrt(Math.pow(e.offsetX - startX, 2) + Math.pow(e.offsetY - startY, 2)) };
         } else if (shapeType === "line") {
+            shapeData = { startX, startY, endX: e.offsetX, endY: e.offsetY };
+        } else if (shapeType === "arrow") {
             shapeData = { startX, startY, endX: e.offsetX, endY: e.offsetY };
         }
 
@@ -65,7 +67,7 @@ export async function initDraw(canvas: HTMLCanvasElement, roomId: string, socket
     };
 
     const mouseMoveHandler = (e: MouseEvent) => {
-        if (window.selectedTool === "select" || !clicked) return; // Do nothing if "select" is active or mouse is not clicked
+        if (window.selectedTool === "select" || !clicked) return; 
         clearCanvas(existingShapes, ctx);
         if (window.selectedTool === "rectangle") {
             ctx.strokeRect(startX, startY, e.offsetX - startX, e.offsetY - startY);
@@ -78,6 +80,29 @@ export async function initDraw(canvas: HTMLCanvasElement, roomId: string, socket
             ctx.beginPath();
             ctx.moveTo(startX, startY);
             ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+        } else if (window.selectedTool === "arrow") {
+            const endX = e.offsetX;
+            const endY = e.offsetY;
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+            const arrowHeadSize = 15;
+            const angle = Math.atan2(endY - startY, endX - startX);
+            ctx.beginPath();
+            ctx.moveTo(endX, endY);
+            ctx.lineTo(
+            endX - Math.cos(angle - Math.PI / 6) * arrowHeadSize,
+            endY - Math.sin(angle - Math.PI / 6) * arrowHeadSize
+            );
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(endX, endY);
+            ctx.lineTo(
+            endX - Math.cos(angle + Math.PI / 6) * arrowHeadSize,
+            endY - Math.sin(angle + Math.PI / 6) * arrowHeadSize
+            );
             ctx.stroke();
         }
     };
@@ -104,6 +129,28 @@ function clearCanvas(existingShapes: Shapes[], ctx: CanvasRenderingContext2D | n
             ctx.beginPath();
             ctx.moveTo(startX, startY);
             ctx.lineTo(endX, endY);
+            ctx.stroke();
+        } else if (shape.type === "arrow") {
+            const { startX, startY, endX, endY } = shape.data;
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+            const arrowHeadSize = 15;
+            const angle = Math.atan2(endY - startY, endX - startX);
+            ctx.beginPath();
+            ctx.moveTo(endX, endY);
+            ctx.lineTo(
+            endX - Math.cos(angle - Math.PI / 6) * arrowHeadSize,
+            endY - Math.sin(angle - Math.PI / 6) * arrowHeadSize
+            );
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(endX, endY);
+            ctx.lineTo(
+            endX - Math.cos(angle + Math.PI / 6) * arrowHeadSize,
+            endY - Math.sin(angle + Math.PI / 6) * arrowHeadSize
+            );
             ctx.stroke();
         }
     });
