@@ -1,28 +1,26 @@
-"use client"
+"use client";
 
 import { initDraw } from "@/draw";
-import { useEffect, useRef, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Check, Copy, Circle, Type, MousePointer, Minus, RectangleHorizontal } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Check, Copy, Circle, Type, MousePointer, Minus, RectangleHorizontal } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { ToolType } from "@/lib/types";
 
-type Tool = "select" | "circle" | "line" | "rectangle" | "text";
-
-export default function Canvas({roomId, socket} : {roomId : string, socket: WebSocket}) {
+export default function Canvas({ roomId, socket }: { roomId: string; socket: WebSocket }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [copied, setCopied] = useState(false);
-    const [selectedTool, setSelectedTool] = useState<Tool>("rectangle");
-
-    async function draw() {
-        if(canvasRef.current) {
-            const cleanup = await initDraw(canvasRef.current, roomId, socket, selectedTool);
-            return () => cleanup
-        }
-    }
+    const [selectedTool, setSelectedTool] = useState<ToolType>("rectangle");
 
     useEffect(() => {
-        draw();
-    }, [canvasRef, selectedTool])
+        window.selectedTool = selectedTool;
+    }, [selectedTool]);
+
+    useEffect(() => {
+        if (canvasRef.current) {
+            initDraw(canvasRef.current, roomId, socket);
+        }
+    }, [canvasRef]);
 
     const copyRoomId = async () => {
         await navigator.clipboard.writeText(roomId);
@@ -47,11 +45,8 @@ export default function Canvas({roomId, socket} : {roomId : string, socket: WebS
                         key={tool.id}
                         variant={selectedTool === tool.id ? "secondary" : "ghost"}
                         size="icon"
-                        className={cn(
-                            "h-9 w-9 rounded-md",
-                            selectedTool === tool.id && "bg-muted shadow-inner"
-                        )}
-                        onClick={() => setSelectedTool(tool.id)}
+                        className={cn("h-9 w-9 rounded-md", selectedTool === tool.id && "bg-muted shadow-inner")}
+                        onClick={() => setSelectedTool(tool.id as ToolType)}
                         title={tool.label}
                     >
                         <tool.icon className="h-5 w-5" />
@@ -61,31 +56,16 @@ export default function Canvas({roomId, socket} : {roomId : string, socket: WebS
             </div>
 
             {/* Canvas */}
-            <canvas 
-                className="w-full h-full" 
-                ref={canvasRef}
-                width={window.innerWidth}
-                height={window.innerHeight}
-            />
+            <canvas className="w-full h-full" ref={canvasRef} width={window.innerWidth} height={window.innerHeight} />
 
             {/* Room ID */}
             <div className="fixed bottom-4 left-4 bg-background/90 backdrop-blur-sm rounded-lg shadow-lg p-2 flex items-center gap-2 z-10">
                 <span className="text-sm font-medium text-muted-foreground">Room ID:</span>
                 <code className="bg-muted px-2 py-1 rounded text-sm">{roomId}</code>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={copyRoomId}
-                    title="Copy room ID"
-                >
-                    {copied ? (
-                        <Check className="h-4 w-4 text-green-500" />
-                    ) : (
-                        <Copy className="h-4 w-4" />
-                    )}
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={copyRoomId} title="Copy room ID">
+                    {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
                 </Button>
             </div>
         </div>
-    )
+    );
 }

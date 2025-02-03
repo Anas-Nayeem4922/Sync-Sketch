@@ -1,14 +1,17 @@
+import { ToolType } from "@/lib/types";
 import { HTTP_BACKEND } from "@/lib/url";
 import axios from "axios";
 
 type Shapes = {
-    type: "select" | "circle" | "line" | "rectangle" | "text";
+    type: ToolType;
     data: any;
 };
 
-export async function initDraw(canvas: HTMLCanvasElement, roomId: string, socket: WebSocket, selectedTool: "select" | "circle" | "line" | "rectangle" | "text") {
+export async function initDraw(canvas: HTMLCanvasElement, roomId: string, socket: WebSocket) {
     let existingShapes: Shapes[] = await getExistingShapes(roomId);
+    let selectedTool: ToolType = window.selectedTool;
     console.log(selectedTool);
+
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     clearCanvas(existingShapes, ctx);
@@ -29,21 +32,23 @@ export async function initDraw(canvas: HTMLCanvasElement, roomId: string, socket
     let clicked = false;
 
     const mouseDownHandler = (e: MouseEvent) => {
+        if (window.selectedTool === "select") return; // Do nothing if "select" is active
         startX = e.offsetX;
         startY = e.offsetY;
         clicked = true;
-    }
+    };
 
     const mouseUpHandler = (e: MouseEvent) => {
+        if (window.selectedTool === "select") return; // Do nothing if "select" is active
         clicked = false;
         let shapeData: any;
-        let shapeType: Shapes["type"] = selectedTool;
+        let shapeType: Shapes["type"] = window.selectedTool;
 
-        if (selectedTool === "rectangle") {
+        if (shapeType === "rectangle") {
             shapeData = { startX, startY, width: e.offsetX - startX, height: e.offsetY - startY };
-        } else if (selectedTool === "circle") {
+        } else if (shapeType === "circle") {
             shapeData = { startX, startY, radius: Math.sqrt(Math.pow(e.offsetX - startX, 2) + Math.pow(e.offsetY - startY, 2)) };
-        } else if (selectedTool === "line") {
+        } else if (shapeType === "line") {
             shapeData = { startX, startY, endX: e.offsetX, endY: e.offsetY };
         }
 
@@ -57,37 +62,29 @@ export async function initDraw(canvas: HTMLCanvasElement, roomId: string, socket
             })
         );
         clearCanvas(existingShapes, ctx);
-    }
+    };
 
     const mouseMoveHandler = (e: MouseEvent) => {
-        if (clicked) {
-            clearCanvas(existingShapes, ctx);
-            if (selectedTool === "rectangle") {
-                ctx.strokeRect(startX, startY, e.offsetX - startX, e.offsetY - startY);
-            } else if (selectedTool === "circle") {
-                const radius = Math.sqrt(Math.pow(e.offsetX - startX, 2) + Math.pow(e.offsetY - startY, 2));
-                ctx.beginPath();
-                ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
-                ctx.stroke();
-            } else if (selectedTool === "line") {
-                ctx.beginPath();
-                ctx.moveTo(startX, startY);
-                ctx.lineTo(e.offsetX, e.offsetY);
-                ctx.stroke();
-            }
+        if (window.selectedTool === "select" || !clicked) return; // Do nothing if "select" is active or mouse is not clicked
+        clearCanvas(existingShapes, ctx);
+        if (window.selectedTool === "rectangle") {
+            ctx.strokeRect(startX, startY, e.offsetX - startX, e.offsetY - startY);
+        } else if (window.selectedTool === "circle") {
+            const radius = Math.sqrt(Math.pow(e.offsetX - startX, 2) + Math.pow(e.offsetY - startY, 2));
+            ctx.beginPath();
+            ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+            ctx.stroke();
+        } else if (window.selectedTool === "line") {
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
         }
-    }
+    };
 
     canvas.addEventListener("mousedown", mouseDownHandler);
     canvas.addEventListener("mousemove", mouseMoveHandler);
     canvas.addEventListener("mouseup", mouseUpHandler);
-
-    const cleanup = () => {
-        canvas.removeEventListener("mousedown", mouseDownHandler);
-        canvas.removeEventListener("mousemove", mouseMoveHandler);
-        canvas.removeEventListener("mouseup", mouseUpHandler);
-    }
-    return cleanup;
 }
 
 function clearCanvas(existingShapes: Shapes[], ctx: CanvasRenderingContext2D | null) {
@@ -114,6 +111,5 @@ function clearCanvas(existingShapes: Shapes[], ctx: CanvasRenderingContext2D | n
 
 async function getExistingShapes(roomId: string): Promise<Shapes[]> {
     const response = await axios.get(`${HTTP_BACKEND}/shapes/${roomId}`);
-    const data = response.data.shapes;
-    return data.map((x: any) => ({ type: x.shapeType, data: JSON.parse(x.shapeData) }));
+    return response.data.shapes.map((x: any) => ({ type: x.shapeType, data: JSON.parse(x.shapeData) }));
 }
