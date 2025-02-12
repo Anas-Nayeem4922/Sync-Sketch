@@ -10,7 +10,7 @@ import { DrawingCanvas } from "@/draw/DrawingCanvas";
 export default function Canvas({ roomId, socket }: { roomId: string; socket: WebSocket }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [copied, setCopied] = useState(false);
-    const [selectedTool, setSelectedTool] = useState<ToolType>("rectangle");
+    const [selectedTool, setSelectedTool] = useState<ToolType>("select");
     const [canvas, setCanvas] = useState<DrawingCanvas>();
 
     useEffect(() => {

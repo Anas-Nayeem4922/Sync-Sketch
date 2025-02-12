@@ -11,7 +11,7 @@ export class DrawingCanvas {
     private clicked: boolean;
     private startX = 0;
     private startY = 0;
-    private selectedTool: ToolType = "rectangle"
+    private selectedTool: ToolType = "select"
 
     constructor(canvas: HTMLCanvasElement, roomId: string, socket: WebSocket) {
         this.canvas = canvas;
@@ -94,7 +94,11 @@ export class DrawingCanvas {
                 endY - Math.sin(angle + Math.PI / 6) * arrowHeadSize
                 );
                 this.ctx.stroke();
-            } 
+            } else if (shape.type === "text") {
+                const { text, startX, startY } = shape.data;
+                this.ctx.font = '30px Arial';
+                this.ctx.fillText(text, startX, startY);
+            }
         });
     }
 
@@ -102,6 +106,25 @@ export class DrawingCanvas {
         this.clicked = true;
         this.startX = e.offsetX;
         this.startY = e.offsetY;
+        if (this.selectedTool === "text") {
+            const text = prompt("Enter your message");
+            this.clicked = false;
+            let shapeData: any;
+            const shapeType = "text";
+            const startX = this.startX;
+            const startY = this.startY;
+            shapeData = { text, startX, startY }
+            this.existingShapes.push({ type: shapeType, data: shapeData });
+            this.socket.send(
+                JSON.stringify({
+                    type: "chat",
+                    roomId: this.roomId,
+                    shapeType,
+                    shapeData: JSON.stringify(shapeData),
+                })
+            );
+            this.clearCanvas();
+        }
     }
 
     mouseUpHandler = (e: MouseEvent) => {

@@ -63,7 +63,7 @@ wss.on("connection", (ws: WebSocket, request) => {
         }
         if(parsedData.type === "chat") {
             const {roomId, shapeType, shapeData} = parsedData
-            const shape = await client.shape.create({
+            await client.shape.create({
                 data: {
                     roomId,
                     shapeType,
