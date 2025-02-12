@@ -1,24 +1,29 @@
 "use client";
 
-import { initDraw } from "@/draw";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, Copy, Circle, Type, MousePointer, Minus, RectangleHorizontal, MoveUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ToolType } from "@/lib/types";
+import { DrawingCanvas } from "@/draw/DrawingCanvas";
 
 export default function Canvas({ roomId, socket }: { roomId: string; socket: WebSocket }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [copied, setCopied] = useState(false);
     const [selectedTool, setSelectedTool] = useState<ToolType>("rectangle");
+    const [canvas, setCanvas] = useState<DrawingCanvas>();
 
     useEffect(() => {
-        window.selectedTool = selectedTool;
-    }, [selectedTool]);
+        canvas?.setTool(selectedTool);
+    }, [selectedTool, canvas]);
 
     useEffect(() => {
         if (canvasRef.current) {
-            initDraw(canvasRef.current, roomId, socket);
+            const c = new DrawingCanvas(canvasRef.current, roomId, socket);
+            setCanvas(c);
+            return () => {
+                c.destroy();
+            }
         }
     }, [canvasRef, roomId, socket]);
 
