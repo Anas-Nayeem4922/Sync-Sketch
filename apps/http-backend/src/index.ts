@@ -112,6 +112,26 @@ app.get("/shapes/:roomId", async(req: Request, res: Response) => {
     })
 });
 
+app.get("/checkRoom/:roomId", async(req: Request, res: Response) => {
+    const { roomId } = req.params;
+    if(roomId) {
+        const room = await client.room.findFirst({
+            where: {
+                id: roomId
+            }
+        })
+        if(room) {
+            res.json({
+                msg: true
+            })
+        }else{
+            res.json({
+                msg: false
+            })
+        }
+    }
+})
+
 app.listen(port, () => {
     console.log(`App is listening on port ${port}`);
 })

@@ -33,10 +33,12 @@ import { PlusCircle, Users, ArrowRight } from "lucide-react";
 import axios from "axios"
 import { HTTP_BACKEND, WS_BACKEND } from "@/lib/url";
 import { useRouter } from "next/navigation";
+import { checkRoom } from "@/lib/checkRoom";
 
 export default function RoomPage() {
 const [roomId, setRoomId] = useState("");
 const [isDialogOpen, setIsDialogOpen] = useState(false);
+const [roomIdError, setRoomIdError] = useState(false);
 const router = useRouter();
 
 const form = useForm<RoomValues>({
@@ -73,13 +75,18 @@ async function onSubmit(values: RoomValues) {
 async function joinRoom() {
     const token = localStorage.getItem("token");
     const ws = new WebSocket(`${WS_BACKEND}?token=${token}`);
-    ws.onopen = () => {
-        ws.send(JSON.stringify({
-            type: "join_room",
-            roomId,
-        }))
+    if(await checkRoom(roomId)) {
+        ws.onopen = () => {
+            ws.send(JSON.stringify({
+                type: "join_room",
+                roomId,
+            }))
+        }
+        setRoomIdError(false);
+        router.push(`/room/${roomId}`);
+    } else {
+        setRoomIdError(true);
     }
-    router.push(`/room/${roomId}`);
 }
 
 return (
@@ -129,6 +136,7 @@ return (
                         onChange={(e) => setRoomId(e.target.value)}
                         className="text-lg"
                     />
+                    {roomIdError && <p className="text-sm text-red-700 text-muted-foreground">Incorrect room code. Please enter a valid one!!</p>}
                     <Button onClick={joinRoom} className="w-full group" size="lg" disabled={!roomId}>
                         Join Room
                         <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
