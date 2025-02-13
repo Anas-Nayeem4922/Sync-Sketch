@@ -12,6 +12,8 @@ private socket: WebSocket;
 private clicked: boolean;
 private startX = 0;
 private startY = 0;
+// @ts-ignore
+private points: [{ x: number; y: number; }] = [];
 private selectedTool: ToolType = "select";
 
 constructor(canvas: HTMLCanvasElement, roomId: string, socket: WebSocket) {
@@ -99,6 +101,16 @@ clearCanvas() {
             const { text, startX, startY } = shape.data;
             this.ctx.font = '20px Arial';
             this.ctx.fillText(text, startX - 4, startY - 4);
+        } else if (shape.type === "pencil") {
+            this.ctx.beginPath();
+            shape.data.points.forEach((point: {x: number, y: number}, index: number) => {
+                if (index === 0) {
+                    this.ctx.moveTo(point.x, point.y);
+                } else {
+                    this.ctx.lineTo(point.x, point.y);
+                }
+            });
+            this.ctx.stroke();
         }
     });
 }
@@ -107,6 +119,11 @@ mouseDownHandler = async (e: MouseEvent) => {
     this.clicked = true;
     this.startX = e.offsetX;
     this.startY = e.offsetY;
+
+    if (this.selectedTool === "pencil") {
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.startX, this.startY);
+    }
     
     if (this.selectedTool === "text") {
         this.clicked = false;
@@ -181,8 +198,8 @@ addInput = (startX: number, startY: number) => {
 
 
 mouseUpHandler = (e: MouseEvent) => {
-    if (this.selectedTool === "select" || this.selectedTool === "text") return; 
     this.clicked = false;
+    if (this.selectedTool === "select" || this.selectedTool === "text") return; 
     let shapeData: any;
     let shapeType: ShapeType["type"] = this.selectedTool;
     const startX = this.startX;
@@ -195,7 +212,11 @@ mouseUpHandler = (e: MouseEvent) => {
         shapeData = { startX, startY, endX: e.offsetX, endY: e.offsetY };
     } else if (shapeType === "arrow") {
         shapeData = { startX, startY, endX: e.offsetX, endY: e.offsetY };
-    } 
+    } else if (this.selectedTool === "pencil") {
+        shapeData = { points: this.points };
+        //@ts-ignore
+        this.points = [];
+    }
 
     this.existingShapes.push({ type: shapeType, data: shapeData });
     this.socket.send(
@@ -211,9 +232,11 @@ mouseUpHandler = (e: MouseEvent) => {
 
 mouseMoveHandler = (e: MouseEvent) => {
     if (this.selectedTool === "select" || !this.clicked) return; 
-    this.clearCanvas();
-    const startX = this.startX;
-    const startY = this.startY;
+    if(this.selectedTool !== "pencil") {
+        this.clearCanvas();
+    }
+    let startX = this.startX;
+    let startY = this.startY;
     if (this.selectedTool === "rectangle") {
         this.ctx.strokeRect(startX, startY, e.offsetX - startX, e.offsetY - startY);
     } else if (this.selectedTool === "circle") {
@@ -249,7 +272,16 @@ mouseMoveHandler = (e: MouseEvent) => {
             endY - Math.sin(angle + Math.PI / 6) * arrowHeadSize
         );
         this.ctx.stroke();
-    } 
+    } else if (this.selectedTool === "pencil") {
+        this.ctx.lineTo(e.offsetX, e.offsetY);
+        console.log(e.offsetX, e.offsetY);
+        this.points?.push({x: e.offsetX, y: e.offsetY});
+        console.log(this.points);
+        this.ctx.strokeStyle = "#000000";
+        this.ctx.lineWidth = 2;
+        this.ctx.lineCap = "round";
+        this.ctx.stroke();
+    }
 }
 
 initMouseHandlers() {

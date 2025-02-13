@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, Copy, Circle, Type, MousePointer, Minus, RectangleHorizontal, MoveUpRight } from "lucide-react";
+import { Check, Copy, Circle, Type, MousePointer, Minus, RectangleHorizontal, MoveUpRight, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ToolType } from "@/lib/types";
 import { DrawingCanvas } from "@/draw/DrawingCanvas";
@@ -39,7 +39,8 @@ export default function Canvas({ roomId, socket }: { roomId: string; socket: Web
         { id: "line", icon: Minus, label: "Line" },
         { id: "rectangle", icon: RectangleHorizontal, label: "Rectangle" },
         { id: "text", icon: Type, label: "Text" },
-        { id: "arrow", icon: MoveUpRight, label: "Arrow"}
+        { id: "arrow", icon: MoveUpRight, label: "Arrow"},
+        { id: "pencil", icon: Pencil, label: "Pencil" }
     ] as const;
 
     return (
