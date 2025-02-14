@@ -22,7 +22,7 @@ export default function RoomCanvas({ roomId }: { roomId: string }) {
                 roomId,
             }));
         };
-    }, [token]);
+    }, [token, roomId]);
 
     if (!socket) {
         return <div>Connecting to server....</div>;

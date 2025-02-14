@@ -60,60 +60,103 @@ async initHandlers() {
 clearCanvas() {
     if (!this.ctx) return;
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+
     this.existingShapes.forEach((shape) => {
-        if (shape.type === "rectangle") {
-            const { startX, startY, width, height } = shape.data;
-            this.ctx.strokeRect(startX, startY, width, height);
-        } else if (shape.type === "circle") {
-            const { startX, startY, radius } = shape.data;
-            this.ctx.beginPath();
-            this.ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
-            this.ctx.stroke();
-        } else if (shape.type === "line") {
-            const { startX, startY, endX, endY } = shape.data;
-            this.ctx.beginPath();
-            this.ctx.moveTo(startX, startY);
-            this.ctx.lineTo(endX, endY);
-            this.ctx.stroke();
-        } else if (shape.type === "arrow") {
-            const { startX, startY, endX, endY } = shape.data;
-            this.ctx.beginPath();
-            this.ctx.moveTo(startX, startY);
-            this.ctx.lineTo(endX, endY);
-            this.ctx.stroke();
-            const arrowHeadSize = 15;
-            const angle = Math.atan2(endY - startY, endX - startX);
-            this.ctx.beginPath();
-            this.ctx.moveTo(endX, endY);
-            this.ctx.lineTo(
-            endX - Math.cos(angle - Math.PI / 6) * arrowHeadSize,
-            endY - Math.sin(angle - Math.PI / 6) * arrowHeadSize
-            );
-            this.ctx.stroke();
-            this.ctx.beginPath();
-            this.ctx.moveTo(endX, endY);
-            this.ctx.lineTo(
-            endX - Math.cos(angle + Math.PI / 6) * arrowHeadSize,
-            endY - Math.sin(angle + Math.PI / 6) * arrowHeadSize
-            );
-            this.ctx.stroke();
-        } else if (shape.type === "text") {
-            const { text, startX, startY } = shape.data;
-            this.ctx.font = '20px Arial';
-            this.ctx.fillText(text, startX - 4, startY - 4);
-        } else if (shape.type === "pencil") {
-            this.ctx.beginPath();
-            shape.data.points.forEach((point: {x: number, y: number}, index: number) => {
-                if (index === 0) {
-                    this.ctx.moveTo(point.x, point.y);
-                } else {
-                    this.ctx.lineTo(point.x, point.y);
-                }
-            });
-            this.ctx.stroke();
+        switch (shape.type) {
+            case "rectangle": {
+                const { startX, startY, width, height } = shape.data as {
+                    startX: number;
+                    startY: number;
+                    width: number;
+                    height: number;
+                };
+                this.ctx.strokeRect(startX, startY, width, height);
+                break;
+            }
+            case "circle": {
+                const { startX, startY, radius } = shape.data as {
+                    startX: number;
+                    startY: number;
+                    radius: number;
+                };
+                this.ctx.beginPath();
+                this.ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+                this.ctx.stroke();
+                break;
+            }
+            case "line": {
+                const { startX, startY, endX, endY } = shape.data as {
+                    startX: number;
+                    startY: number;
+                    endX: number;
+                    endY: number;
+                };
+                this.ctx.beginPath();
+                this.ctx.moveTo(startX, startY);
+                this.ctx.lineTo(endX, endY);
+                this.ctx.stroke();
+                break;
+            }
+            case "arrow": {
+                const { startX, startY, endX, endY } = shape.data as {
+                    startX: number;
+                    startY: number;
+                    endX: number;
+                    endY: number;
+                };
+                this.ctx.beginPath();
+                this.ctx.moveTo(startX, startY);
+                this.ctx.lineTo(endX, endY);
+                this.ctx.stroke();
+                const arrowHeadSize = 15;
+                const angle = Math.atan2(endY - startY, endX - startX);
+                this.ctx.beginPath();
+                this.ctx.moveTo(endX, endY);
+                this.ctx.lineTo(
+                    endX - Math.cos(angle - Math.PI / 6) * arrowHeadSize,
+                    endY - Math.sin(angle - Math.PI / 6) * arrowHeadSize
+                );
+                this.ctx.stroke();
+                this.ctx.beginPath();
+                this.ctx.moveTo(endX, endY);
+                this.ctx.lineTo(
+                    endX - Math.cos(angle + Math.PI / 6) * arrowHeadSize,
+                    endY - Math.sin(angle + Math.PI / 6) * arrowHeadSize
+                );
+                this.ctx.stroke();
+                break;
+            }
+            case "text": {
+                const { text, startX, startY } = shape.data as {
+                    text: string;
+                    startX: number;
+                    startY: number;
+                };
+                this.ctx.font = '20px Arial';
+                this.ctx.fillText(text, startX - 4, startY - 4);
+                break;
+            }
+            case "pencil": {
+                const { points } = shape.data as {
+                    points: { x: number; y: number }[];
+                };
+                this.ctx.beginPath();
+                points.forEach((point, index) => {
+                    if (index === 0) {
+                        this.ctx.moveTo(point.x, point.y);
+                    } else {
+                        this.ctx.lineTo(point.x, point.y);
+                    }
+                });
+                this.ctx.stroke();
+                break;
+            }
         }
     });
 }
+
+
+
 
 mouseDownHandler = async (e: MouseEvent) => {
     this.clicked = true;
