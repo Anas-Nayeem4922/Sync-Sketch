@@ -1,2 +1,2 @@
-export const HTTP_BACKEND = "https://syncsketch.ezzcrafts.com"; 
-export const WS_BACKEND = "wss://syncsketch.ezzcrafts.com";
+export const HTTP_BACKEND = "http://localhost:3001"
+export const WS_BACKEND = "ws://localhost:8080"

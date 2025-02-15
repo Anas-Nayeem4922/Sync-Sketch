@@ -53,18 +53,15 @@ export default function SignUp() {
 
   return (
     <div className="container relative min-h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-      <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
-        <div className="absolute inset-0 bg-primary" />
-        <div className="relative z-20 flex items-center text-lg font-medium">
-          <UserPlus className="mr-2 h-6 w-6" /> Collaborative Drawing
-        </div>
-        <div className="relative z-20 mt-auto">
-          <blockquote className="space-y-2">
-            <p className="text-lg">
-              &ldquo;Join our community of creators and bring your ideas to life with real-time collaborative drawing.&rdquo;
+      <div className="relative hidden h-full flex-col bg-muted p-10 lg:flex dark:border-r">
+        <div>
+          <div>
+            <p className="font-black mb-2 text-3xl bg-gradient-to-r from-black via-gray-600 to-gray-300 bg-clip-text text-transparent">
+              Get Started with Sync Sketch!
             </p>
-            <footer className="text-sm">Alex Chen, Product Designer</footer>
-          </blockquote>
+            <p className="italic font-semibold mb-4">- Collaborate, create, and sketch ideas with your team in real-time. Sign up now to start drawing!</p>
+            <img src="https://static.vecteezy.com/system/resources/previews/046/453/545/non_2x/a-black-and-white-drawing-of-a-man-and-woman-digital-creator-outline-illustrations-set-outline-drawing-online-working-template-set-free-vector.jpg" alt="" />
+          </div>
         </div>
       </div>
       <div className="lg:p-8">

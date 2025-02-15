@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { LogIn } from "lucide-react";
+import { LogIn, Pencil, Users, Share2, Sparkles } from "lucide-react";
 import axios from "axios"
 import { HTTP_BACKEND } from "@/lib/url";
 import { useRouter } from "next/navigation";
@@ -61,30 +61,27 @@ export default function SignIn() {
 
   return (
     <div className="container relative min-h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-      <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
-        <div className="absolute inset-0 bg-primary" />
-        <div className="relative z-20 flex items-center text-lg font-medium">
-          <LogIn className="mr-2 h-6 w-6" /> Collaborative Drawing
+      <div className="relative hidden h-full flex-col bg-muted p-10 lg:flex dark:border-r">      
+        <div>
+          <p className="font-black mb-2 text-3xl bg-gradient-to-r from-black via-gray-600 to-gray-300 bg-clip-text text-transparent">
+            Welcome Back to Sync Sketch!
+          </p>
+          <p className="italic font-semibold mb-4">- Unleash your creativity and collaborate in real-time. Sign in to pick up where you left off!</p>
+          <img src="https://img.freepik.com/vecteurs-premium/livre-realite-augmentee-concept-abstrait-illustration-vectorielle_335657-5849.jpg" alt="" />
         </div>
-        <div className="relative z-20 mt-auto">
-          <blockquote className="space-y-2">
-            <p className="text-lg">
-              &ldquo;This platform has revolutionized how our team collaborates on visual projects. The real-time features are incredible!&rdquo;
-            </p>
-            <footer className="text-sm">Sofia Davis, Design Lead</footer>
-          </blockquote>
-        </div>
+        
       </div>
       <div className="lg:p-8">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
           <div className="flex flex-col space-y-2 text-center">
             <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
-            {error ? <p className="text-sm text-muted-foreground text-red-600">{errorMessage}</p> : 
+            {error ? (
+              <p className="text-sm text-muted-foreground text-red-600">{errorMessage}</p>
+            ) : (
               <p className="text-sm text-muted-foreground">
                 Enter your credentials to sign in to your account
               </p>
-            }
-            
+            )}
           </div>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
